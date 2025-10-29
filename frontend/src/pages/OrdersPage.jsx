@@ -20,7 +20,16 @@ const OrdersPage = () => {
     }
 
     const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
+    setUser(parsedUser); // Set user first so page can render
+    
+    // Check if user object has id (new auth response format)
+    if (!parsedUser.id) {
+      // Old token format - need to re-login
+      setError('Please log out and log back in to view orders');
+      setLoading(false);
+      return;
+    }
+    
     fetchOrders(parsedUser.id);
   }, [navigate]);
 
@@ -107,13 +116,26 @@ const OrdersPage = () => {
 
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+              <p className="mb-2">{error}</p>
+              {error.includes('log out') && (
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition duration-200"
+                >
+                  Logout Now
+                </button>
+              )}
             </div>
           )}
 
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="text-xl text-gray-600">Loading orders...</div>
+            </div>
+          ) : error && !loading ? (
+            <div className="bg-white rounded-lg shadow-md p-12 text-center">
+              <p className="text-xl text-red-600 mb-4">Unable to load orders</p>
+              <p className="text-gray-600">Please try logging out and back in</p>
             </div>
           ) : orders.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-12 text-center">
