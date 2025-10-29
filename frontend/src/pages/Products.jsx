@@ -227,6 +227,7 @@ const Products = () => {
             onEdit={handleEdit}
             onDelete={handleDeleteProduct}
             currentUserId={user.id}
+            userRole={user.role}
             loading={loading}
           />
         </div>

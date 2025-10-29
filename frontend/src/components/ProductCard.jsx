@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const ProductCard = ({ product, onEdit, onDelete, isOwner }) => {
+const ProductCard = ({ product, onEdit, onDelete, isOwner, userRole }) => {
+  const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleDelete = () => {
@@ -42,6 +44,18 @@ const ProductCard = ({ product, onEdit, onDelete, isOwner }) => {
           <p>Updated: {new Date(product.updatedAt).toLocaleDateString()}</p>
         )}
       </div>
+
+      {/* View Details button for buyers */}
+      {userRole === 'BUYER' && !isOwner && (
+        <div className="pt-4 border-t border-gray-200">
+          <button
+            onClick={() => navigate(`/products/${product.id}`)}
+            className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200"
+          >
+            View Details & Order
+          </button>
+        </div>
+      )}
 
       {isOwner && (
         <div className="flex gap-2 pt-4 border-t border-gray-200">

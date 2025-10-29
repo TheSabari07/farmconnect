@@ -121,11 +121,17 @@ const Dashboard = () => {
                   </div>
                 </button>
                 <button
-                  className="bg-white border-2 border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold py-4 px-6 rounded-lg transition duration-200 text-left opacity-50 cursor-not-allowed"
-                  disabled
+                  onClick={() => navigate(user.role === 'FARMER' ? '/farmer-orders' : '/orders')}
+                  className="bg-white border-2 border-green-600 hover:bg-green-50 text-green-600 font-semibold py-4 px-6 rounded-lg transition duration-200 text-left"
                 >
                   <div className="text-lg mb-1">🛒 Orders</div>
-                  <div className="text-sm text-gray-600">Coming soon...</div>
+                  <div className="text-sm text-gray-600">
+                    {user.role === 'FARMER' 
+                      ? 'Manage orders for your products' 
+                      : user.role === 'BUYER'
+                      ? 'View your order history'
+                      : 'View all orders'}
+                  </div>
                 </button>
               </div>
             </div>

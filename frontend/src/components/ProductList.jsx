@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 
-const ProductList = ({ products, onEdit, onDelete, currentUserId, loading }) => {
+const ProductList = ({ products, onEdit, onDelete, currentUserId, loading, userRole }) => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
 
   if (loading) {
@@ -60,6 +62,7 @@ const ProductList = ({ products, onEdit, onDelete, currentUserId, loading }) => 
               onEdit={onEdit}
               onDelete={onDelete}
               isOwner={currentUserId === product.farmerId}
+              userRole={userRole}
             />
           ))}
         </div>
