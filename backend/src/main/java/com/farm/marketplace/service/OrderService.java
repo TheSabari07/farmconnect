@@ -29,6 +29,12 @@ public class OrderService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private InventoryService inventoryService;
+    
+    @Autowired
+    private DeliveryService deliveryService;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
@@ -43,10 +49,9 @@ public class OrderService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + request.getProductId()));
 
-        // Validate stock availability
-        if (product.getQuantity() < request.getQuantity()) {
-            throw new RuntimeException("Insufficient stock. Available: " + product.getQuantity() + 
-                                     ", Requested: " + request.getQuantity());
+        // Check inventory availability
+        if (!inventoryService.checkAvailability(product.getId(), request.getQuantity())) {
+            throw new RuntimeException("Insufficient stock. Please check product availability.");
         }
 
         // Calculate total price
@@ -62,7 +67,10 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        // Reduce product quantity
+        // Decrease inventory (automatic inventory management)
+        inventoryService.decreaseInventory(product.getId(), request.getQuantity());
+        
+        // Also update product quantity for backward compatibility
         product.setQuantity(product.getQuantity() - request.getQuantity());
         productRepository.save(product);
 
@@ -131,21 +139,32 @@ public class OrderService {
             throw new RuntimeException("Cannot update status of delivered or cancelled orders");
         }
 
+        OrderStatus oldStatus = order.getStatus();
         order.setStatus(request.getStatus());
         Order updatedOrder = orderRepository.save(order);
+        
+        // Auto-create delivery when order status changes to SHIPPED
+        if (request.getStatus() == OrderStatus.SHIPPED && oldStatus != OrderStatus.SHIPPED) {
+            try {
+                deliveryService.autoCreateDeliveryForShippedOrder(orderId);
+            } catch (Exception e) {
+                // Log error but don't fail the order update
+                System.err.println("Failed to create delivery for order " + orderId + ": " + e.getMessage());
+            }
+        }
 
         return mapToResponse(updatedOrder);
     }
 
     @Transactional
     public void cancelOrder(Long orderId) {
-        User buyer = getCurrentUser();
+        User user = getCurrentUser();
         
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
-        // Only the buyer who placed the order can cancel it
-        if (!order.getBuyerId().equals(buyer.getId())) {
+        // Buyers can only cancel their own orders, admins can cancel any
+        if (user.getRole() != Role.ADMIN && !order.getBuyerId().equals(user.getId())) {
             throw new UnauthorizedException("You can only cancel your own orders");
         }
 
@@ -156,7 +175,10 @@ public class OrderService {
             throw new RuntimeException("Cannot cancel order with status: " + order.getStatus());
         }
 
-        // Restore product quantity
+        // Restore inventory (automatic inventory management)
+        inventoryService.increaseInventory(order.getProductId(), order.getQuantity());
+        
+        // Also restore product quantity for backward compatibility
         Product product = productRepository.findById(order.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         product.setQuantity(product.getQuantity() + order.getQuantity());

@@ -25,6 +25,9 @@ public class ProductService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private InventoryService inventoryService;
 
     public ProductResponse createProduct(ProductRequest request) {
         User farmer = getCurrentUser();
@@ -43,6 +46,10 @@ public class ProductService {
         product.setFarmerId(farmer.getId());
 
         Product savedProduct = productRepository.save(product);
+        
+        // Initialize inventory for the new product
+        inventoryService.initializeInventory(savedProduct.getId(), savedProduct.getQuantity());
+        
         return mapToResponse(savedProduct, farmer);
     }
 
@@ -60,18 +67,18 @@ public class ProductService {
     }
 
     public ProductResponse updateProduct(Long id, ProductRequest request) {
-        User farmer = getCurrentUser();
+        User user = getCurrentUser();
         
-        // Check if user is a farmer
-        if (farmer.getRole() != Role.FARMER) {
-            throw new UnauthorizedException("Only farmers can update products");
+        // Check if user is a farmer or admin
+        if (user.getRole() != Role.FARMER && user.getRole() != Role.ADMIN) {
+            throw new UnauthorizedException("Only farmers and admins can update products");
         }
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        // Check if the farmer owns this product
-        if (!product.getFarmerId().equals(farmer.getId())) {
+        // Farmers can only update their own products, admins can update any
+        if (user.getRole() == Role.FARMER && !product.getFarmerId().equals(user.getId())) {
             throw new UnauthorizedException("You can only update your own products");
         }
 
@@ -82,22 +89,26 @@ public class ProductService {
         product.setLocation(request.getLocation());
 
         Product updatedProduct = productRepository.save(product);
-        return mapToResponse(updatedProduct, farmer);
+        
+        // Sync inventory with updated product quantity
+        inventoryService.syncInventoryWithProduct(updatedProduct.getId());
+        
+        return mapToResponse(updatedProduct, user);
     }
 
     public void deleteProduct(Long id) {
-        User farmer = getCurrentUser();
+        User user = getCurrentUser();
         
-        // Check if user is a farmer
-        if (farmer.getRole() != Role.FARMER) {
-            throw new UnauthorizedException("Only farmers can delete products");
+        // Check if user is a farmer or admin
+        if (user.getRole() != Role.FARMER && user.getRole() != Role.ADMIN) {
+            throw new UnauthorizedException("Only farmers and admins can delete products");
         }
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        // Check if the farmer owns this product
-        if (!product.getFarmerId().equals(farmer.getId())) {
+        // Farmers can only delete their own products, admins can delete any
+        if (user.getRole() == Role.FARMER && !product.getFarmerId().equals(user.getId())) {
             throw new UnauthorizedException("You can only delete your own products");
         }
 
