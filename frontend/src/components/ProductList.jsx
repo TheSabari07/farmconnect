@@ -61,7 +61,7 @@ const ProductList = ({ products, onEdit, onDelete, currentUserId, loading, userR
               product={product}
               onEdit={onEdit}
               onDelete={onDelete}
-              isOwner={currentUserId === product.farmerId}
+              isOwner={currentUserId === product.farmerId || userRole === 'ADMIN'}
               userRole={userRole}
             />
           ))}
@@ -120,7 +120,7 @@ const ProductList = ({ products, onEdit, onDelete, currentUserId, loading, userR
                         <div className="text-sm text-gray-900">{product.location}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        {isOwner ? (
+                        {(currentUserId === product.farmerId || userRole === 'ADMIN') ? (
                           <div className="flex gap-2">
                             <button
                               onClick={() => onEdit(product)}

@@ -20,17 +20,14 @@ const OrdersPage = () => {
     }
 
     const parsedUser = JSON.parse(userData);
-    setUser(parsedUser); // Set user first so page can render
+    setUser(parsedUser);
     
-    // Check if user object has id (new auth response format)
-    if (!parsedUser.id) {
-      // Old token format - need to re-login
-      setError('Please log out and log back in to view orders');
+    if (parsedUser.id) {
+      fetchOrders(parsedUser.id);
+    } else {
+      setError('Unable to load orders. Please try logging out and back in.');
       setLoading(false);
-      return;
     }
-    
-    fetchOrders(parsedUser.id);
   }, [navigate]);
 
   const fetchOrders = async (buyerId) => {
@@ -44,6 +41,22 @@ const OrdersPage = () => {
       console.error('Error fetching orders:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) {
+      return;
+    }
+
+    try {
+      await api.delete(`/orders/${orderId}`);
+      // Refresh orders list
+      if (user && user.id) {
+        fetchOrders(user.id);
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to cancel order');
     }
   };
 
@@ -161,6 +174,8 @@ const OrdersPage = () => {
                     key={order.id}
                     order={order}
                     canUpdateStatus={false}
+                    onCancel={handleCancelOrder}
+                    canCancel={true}
                   />
                 ))}
               </div>

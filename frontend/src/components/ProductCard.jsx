@@ -28,9 +28,25 @@ const ProductCard = ({ product, onEdit, onDelete, isOwner, userRole }) => {
       )}
 
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-gray-50 p-3 rounded">
+        <div className={`p-3 rounded ${
+          product.quantity === 0 
+            ? 'bg-red-100 border border-red-300' 
+            : product.quantity < 10 
+            ? 'bg-yellow-100 border border-yellow-300' 
+            : 'bg-gray-50'
+        }`}>
           <p className="text-xs text-gray-500 mb-1">Available</p>
-          <p className="text-lg font-semibold text-gray-800">{product.quantity} units</p>
+          <p className={`text-lg font-semibold ${
+            product.quantity === 0 
+              ? 'text-red-700' 
+              : product.quantity < 10 
+              ? 'text-yellow-700' 
+              : 'text-gray-800'
+          }`}>
+            {product.quantity} units
+            {product.quantity === 0 && <span className="text-xs ml-2">🚫 Out of Stock</span>}
+            {product.quantity > 0 && product.quantity < 10 && <span className="text-xs ml-2">⚠️ Low Stock</span>}
+          </p>
         </div>
         <div className="bg-gray-50 p-3 rounded">
           <p className="text-xs text-gray-500 mb-1">Location</p>
@@ -48,12 +64,21 @@ const ProductCard = ({ product, onEdit, onDelete, isOwner, userRole }) => {
       {/* View Details button for buyers */}
       {userRole === 'BUYER' && !isOwner && (
         <div className="pt-4 border-t border-gray-200">
-          <button
-            onClick={() => navigate(`/products/${product.id}`)}
-            className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200"
-          >
-            View Details & Order
-          </button>
+          {product.quantity === 0 ? (
+            <button
+              disabled
+              className="w-full bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed"
+            >
+              Out of Stock
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(`/products/${product.id}`)}
+              className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200"
+            >
+              View Details & Order
+            </button>
+          )}
         </div>
       )}
 

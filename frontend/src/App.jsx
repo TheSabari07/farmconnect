@@ -5,6 +5,10 @@ import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import OrdersPage from './pages/OrdersPage';
 import FarmerOrders from './pages/FarmerOrders';
+import AdminOrders from './pages/AdminOrders';
+import InventoryDashboard from './pages/InventoryDashboard';
+import BuyerTrackingPage from './pages/BuyerTrackingPage';
+import FarmerDeliveryPage from './pages/FarmerDeliveryPage';
 
 function App() {
   return (
@@ -16,6 +20,10 @@ function App() {
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/farmer-orders" element={<FarmerOrders />} />
+        <Route path="/admin-orders" element={<AdminOrders />} />
+        <Route path="/inventory" element={<InventoryDashboard />} />
+        <Route path="/tracking" element={<BuyerTrackingPage />} />
+        <Route path="/farmer-delivery" element={<FarmerDeliveryPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

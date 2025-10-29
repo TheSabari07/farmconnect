@@ -108,7 +108,7 @@ const Dashboard = () => {
 
             <div className="mt-6">
               <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <button
                   onClick={() => navigate('/products')}
                   className="bg-white border-2 border-green-600 hover:bg-green-50 text-green-600 font-semibold py-4 px-6 rounded-lg transition duration-200 text-left"
@@ -121,7 +121,10 @@ const Dashboard = () => {
                   </div>
                 </button>
                 <button
-                  onClick={() => navigate(user.role === 'FARMER' ? '/farmer-orders' : '/orders')}
+                  onClick={() => navigate(
+                    user.role === 'ADMIN' ? '/admin-orders' :
+                    user.role === 'FARMER' ? '/farmer-orders' : '/orders'
+                  )}
                   className="bg-white border-2 border-green-600 hover:bg-green-50 text-green-600 font-semibold py-4 px-6 rounded-lg transition duration-200 text-left"
                 >
                   <div className="text-lg mb-1">🛒 Orders</div>
@@ -130,9 +133,46 @@ const Dashboard = () => {
                       ? 'Manage orders for your products' 
                       : user.role === 'BUYER'
                       ? 'View your order history'
-                      : 'View all orders'}
+                      : 'Manage all platform orders'}
                   </div>
                 </button>
+                {(user.role === 'FARMER' || user.role === 'ADMIN') && (
+                  <button
+                    onClick={() => navigate('/inventory')}
+                    className="bg-white border-2 border-green-600 hover:bg-green-50 text-green-600 font-semibold py-4 px-6 rounded-lg transition duration-200 text-left"
+                  >
+                    <div className="text-lg mb-1">📊 Inventory</div>
+                    <div className="text-sm text-gray-600">
+                      {user.role === 'FARMER' 
+                        ? 'Monitor and manage stock levels' 
+                        : 'View all inventory'}
+                    </div>
+                  </button>
+                )}
+                {user.role === 'BUYER' && (
+                  <button
+                    onClick={() => navigate('/tracking')}
+                    className="bg-white border-2 border-green-600 hover:bg-green-50 text-green-600 font-semibold py-4 px-6 rounded-lg transition duration-200 text-left"
+                  >
+                    <div className="text-lg mb-1">🚚 Track Delivery</div>
+                    <div className="text-sm text-gray-600">
+                      Track your order deliveries in real-time
+                    </div>
+                  </button>
+                )}
+                {(user.role === 'FARMER' || user.role === 'ADMIN') && (
+                  <button
+                    onClick={() => navigate('/farmer-delivery')}
+                    className="bg-white border-2 border-green-600 hover:bg-green-50 text-green-600 font-semibold py-4 px-6 rounded-lg transition duration-200 text-left"
+                  >
+                    <div className="text-lg mb-1">🚚 Deliveries</div>
+                    <div className="text-sm text-gray-600">
+                      {user.role === 'FARMER' 
+                        ? 'Manage delivery status for orders' 
+                        : 'View all deliveries'}
+                    </div>
+                  </button>
+                )}
               </div>
             </div>
           </div>

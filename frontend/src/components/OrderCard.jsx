@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const OrderCard = ({ order, onStatusUpdate, canUpdateStatus }) => {
+const OrderCard = ({ order, onStatusUpdate, canUpdateStatus, onCancel, canCancel }) => {
   const [selectedStatus, setSelectedStatus] = useState(order.status);
   const [updating, setUpdating] = useState(false);
 
@@ -95,6 +95,17 @@ const OrderCard = ({ order, onStatusUpdate, canUpdateStatus }) => {
           {updating && (
             <p className="text-sm text-gray-500 mt-2">Updating status...</p>
           )}
+        </div>
+      )}
+
+      {canCancel && order.status !== 'SHIPPED' && order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
+        <div className="border-t border-gray-200 pt-4 mt-4">
+          <button
+            onClick={() => onCancel(order.id)}
+            className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition duration-200"
+          >
+            Cancel Order
+          </button>
         </div>
       )}
     </div>
