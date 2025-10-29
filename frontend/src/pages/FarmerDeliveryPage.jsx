@@ -54,8 +54,9 @@ const FarmerDeliveryPage = () => {
         if (updated) setSelectedDelivery(updated);
       }
     } catch (err) {
-      setError('Failed to load deliveries');
       console.error('Error fetching deliveries:', err);
+      console.error('Error details:', err.response?.data);
+      setError(err.response?.data?.error || 'Failed to load deliveries');
     } finally {
       setLoading(false);
     }

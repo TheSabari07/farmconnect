@@ -65,8 +65,9 @@ const BuyerTrackingPage = () => {
       }
     } catch (err) {
       if (!silent) {
-        setError('Failed to load deliveries');
         console.error('Error fetching deliveries:', err);
+        console.error('Error details:', err.response?.data);
+        setError(err.response?.data?.error || 'Failed to load deliveries');
       }
     } finally {
       if (!silent) setLoading(false);

@@ -37,8 +37,9 @@ const OrdersPage = () => {
       const response = await api.get(`/orders/buyer/${buyerId}`);
       setOrders(response.data);
     } catch (err) {
-      setError('Failed to load orders');
       console.error('Error fetching orders:', err);
+      console.error('Error details:', err.response?.data);
+      setError(err.response?.data?.error || 'Failed to load orders');
     } finally {
       setLoading(false);
     }
@@ -147,8 +148,25 @@ const OrdersPage = () => {
             </div>
           ) : error && !loading ? (
             <div className="bg-white rounded-lg shadow-md p-12 text-center">
+              <div className="text-6xl mb-4">⚠️</div>
               <p className="text-xl text-red-600 mb-4">Unable to load orders</p>
-              <p className="text-gray-600">Please try logging out and back in</p>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-yellow-800 mb-2">
+                  <strong>Common fixes:</strong>
+                </p>
+                <ul className="text-sm text-yellow-700 text-left max-w-md mx-auto">
+                  <li>• Logout and login again to refresh your session</li>
+                  <li>• Make sure you have placed at least one order</li>
+                  <li>• Check that the backend server is running</li>
+                </ul>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded transition duration-200"
+              >
+                Logout & Login Again
+              </button>
             </div>
           ) : orders.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-12 text-center">

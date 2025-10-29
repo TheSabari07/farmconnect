@@ -30,6 +30,7 @@ const LoginForm = () => {
       // Save token and user info to localStorage
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify({
+        id: response.data.id,
         email: response.data.email,
         name: response.data.name,
         role: response.data.role,
