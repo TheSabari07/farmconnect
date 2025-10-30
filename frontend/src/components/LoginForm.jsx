@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Mail, Lock } from 'lucide-react';
 import api from '../api';
+import Input from './ui/Input';
+import Button from './ui/Button';
+import Alert from './ui/Alert';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -54,56 +58,52 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Login</h2>
+    <div className="w-full max-w-md mx-auto animate-in">
+      <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-2xl px-8 pt-8 pb-8 border border-gray-100">
+        <h2 className="text-3xl font-bold text-center mb-2 text-gray-900">Welcome Back</h2>
+        <p className="text-center text-gray-600 mb-8">Sign in to your account</p>
         
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <Alert variant="error" className="mb-6" onClose={() => setError('')}>
             {error}
-          </div>
+          </Alert>
         )}
 
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-            Email
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500"
-            id="email"
+        <div className="space-y-5">
+          <Input
+            label="Email Address"
             type="email"
             name="email"
-            placeholder="Enter your email"
+            placeholder="you@example.com"
             value={formData.email}
             onChange={handleChange}
+            icon={Mail}
             required
           />
-        </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-            Password
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500"
-            id="password"
+          <Input
+            label="Password"
             type="password"
             name="password"
             placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange}
+            icon={Lock}
             required
           />
         </div>
 
-        <div className="flex items-center justify-center">
-          <button
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
+        <div className="mt-8">
+          <Button
             type="submit"
+            variant="primary"
+            size="lg"
+            className="w-full"
+            isLoading={loading}
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
+            Sign In
+          </Button>
         </div>
       </form>
     </div>

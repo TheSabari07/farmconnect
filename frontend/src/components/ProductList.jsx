@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Grid, List, Package } from 'lucide-react';
 import ProductCard from './ProductCard';
+import { SkeletonCard } from './ui/Skeleton';
+import Button from './ui/Button';
+import { Card } from './ui/Card';
 
 const ProductList = ({ products, onEdit, onDelete, currentUserId, loading, userRole }) => {
   const navigate = useNavigate();
@@ -8,47 +12,67 @@ const ProductList = ({ products, onEdit, onDelete, currentUserId, loading, userR
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="text-xl text-gray-600">Loading products...</div>
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (!products || products.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-12 text-center">
-        <p className="text-xl text-gray-600 mb-4">No products available</p>
-        <p className="text-gray-500">Be the first to add a product!</p>
-      </div>
+      <Card className="p-12 text-center animate-in">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+            <Package className="text-gray-400" size={32} />
+          </div>
+          <div>
+            <p className="text-xl font-semibold text-gray-900 mb-2">No products available</p>
+            <p className="text-gray-500">Be the first to add a product!</p>
+          </div>
+        </div>
+      </Card>
     );
   }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          {products.length} Product{products.length !== 1 ? 's' : ''} Available
-        </h2>
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {products.length} Product{products.length !== 1 ? 's' : ''}
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">Available in marketplace</p>
+        </div>
+        <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
           <button
             onClick={() => setViewMode('grid')}
-            className={`px-4 py-2 rounded transition duration-200 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
               viewMode === 'grid'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-white text-green-600 shadow-sm font-medium'
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Grid
+            <Grid size={18} />
+            <span className="hidden sm:inline">Grid</span>
           </button>
           <button
             onClick={() => setViewMode('table')}
-            className={`px-4 py-2 rounded transition duration-200 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
               viewMode === 'table'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-white text-green-600 shadow-sm font-medium'
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Table
+            <List size={18} />
+            <span className="hidden sm:inline">Table</span>
           </button>
         </div>
       </div>

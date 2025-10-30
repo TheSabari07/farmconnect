@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import api from '../api';
+import Layout from '../components/Layout';
 import ProductForm from '../components/ProductForm';
 import ProductList from '../components/ProductList';
+import Button from '../components/ui/Button';
+import Alert from '../components/ui/Alert';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 
 const Products = () => {
   const navigate = useNavigate();
@@ -136,7 +141,10 @@ const Products = () => {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-lg text-gray-600">Loading...</span>
+        </div>
       </div>
     );
   }
@@ -144,95 +152,72 @@ const Products = () => {
   const isFarmer = user.role === 'FARMER';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <h1 className="text-2xl font-bold text-green-600">Farm Marketplace</h1>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="text-gray-700 hover:text-green-600 transition duration-200"
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => navigate('/products')}
-                className="text-green-600 font-semibold"
-              >
-                Products
-              </button>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">
-                <span className="font-semibold">{user.name}</span>
-              </span>
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                {user.role}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition duration-200"
-              >
-                Logout
-              </button>
-            </div>
+    <Layout user={user}>
+      <div className="animate-in space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+            <p className="text-gray-600 mt-1">
+              {isFarmer ? 'Manage your product listings' : 'Browse available farm products'}
+            </p>
           </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Messages */}
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-              {success}
-            </div>
-          )}
-
-          {/* Add Product Button (Farmers Only) */}
           {isFarmer && !showForm && (
-            <div className="mb-6">
-              <button
-                onClick={() => setShowForm(true)}
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200"
-              >
-                + Add New Product
-              </button>
-            </div>
+            <Button
+              onClick={() => setShowForm(true)}
+              variant="primary"
+              size="lg"
+              className="flex items-center gap-2"
+            >
+              <Plus size={20} />
+              Add New Product
+            </Button>
           )}
+        </div>
 
-          {/* Product Form */}
-          {showForm && isFarmer && (
-            <div className="mb-6">
+        {/* Messages */}
+        {error && (
+          <Alert variant="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert variant="success" onClose={() => setSuccess('')}>
+            {success}
+          </Alert>
+        )}
+
+        {/* Product Form */}
+        {showForm && isFarmer && (
+          <Card className="animate-in">
+            <CardHeader>
+              <CardTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</CardTitle>
+              <CardDescription>
+                {editingProduct ? 'Update your product details' : 'Fill in the details to list a new product'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <ProductForm
                 product={editingProduct}
                 onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
                 onCancel={handleCancelForm}
                 loading={formLoading}
               />
-            </div>
-          )}
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Product List */}
-          <ProductList
-            products={products}
-            onEdit={handleEdit}
-            onDelete={handleDeleteProduct}
-            currentUserId={user.id}
-            userRole={user.role}
-            loading={loading}
-          />
-        </div>
-      </main>
-    </div>
+        {/* Product List */}
+        <ProductList
+          products={products}
+          onEdit={handleEdit}
+          onDelete={handleDeleteProduct}
+          currentUserId={user.id}
+          userRole={user.role}
+          loading={loading}
+        />
+      </div>
+    </Layout>
   );
 };
 
